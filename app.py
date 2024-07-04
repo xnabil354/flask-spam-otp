@@ -41,11 +41,11 @@ def format_phone_number(provider, phone_number):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+        flash(f'Successfully Spam OTP')
         phone_number = request.form['phone_number']
         otp_count = int(request.form['otp_count'])
-        flash(f'Successfully Spam {otp_count} OTPs to {phone_number}')
-        redirect(url_for('index'))
-        return send_otp(phone_number, otp_count)
+        send_otp(phone_number, otp_count)
+        return redirect(url_for('index'))
     return render_template('index.html')
 
 def send_otp(phone_number, otp_count):
