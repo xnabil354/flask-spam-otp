@@ -95,15 +95,9 @@
         <div class="loading-popup" id="loadingPopup">
             Spamming OTP, please wait...
         </div>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
                 <ul class="flash-messages">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
+                    <li>Successfully Spam OTP</li>
                 </ul>
-            {% endif %}
-        {% endwith %}
     </div>
 
     <script>
