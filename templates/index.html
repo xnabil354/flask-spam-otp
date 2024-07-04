@@ -120,12 +120,11 @@
             document.getElementById('submitBtn').style.display = 'none';  // Hide the submit button
         }
 
-        showLoadingPopup();
-
         function handleSubmit() {
             const phoneNumberInput = document.getElementById('phone_number');
             const otpCountInput = document.getElementById('otp_count');
 
+            showLoadingPopup();
             // Gabungkan +62 dengan input pengguna
             phoneNumberInput.value = '+62' + phoneNumberInput.value;
 

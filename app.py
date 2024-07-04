@@ -44,8 +44,8 @@ def index():
         phone_number = request.form['phone_number']
         otp_count = int(request.form['otp_count'])
         flash(f'Successfully Spam {otp_count} OTPs to {phone_number}')
-        send_otp(phone_number, otp_count)
-        return redirect(url_for('index'))
+        redirect(url_for('index'))
+        return send_otp(phone_number, otp_count)
     return render_template('index.html')
 
 def send_otp(phone_number, otp_count):
