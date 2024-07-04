@@ -1,17 +1,26 @@
 {
     "version": 2,
     "builds": [
-        {"src": "app.py", "use": "@vercel/python"}
+        {
+            "src": "api/index.py",
+            "use": "@vercel/python"
+        },
+        {
+            "src": "app.py",
+            "use": "@vercel/python"
+        }
     ],
     "routes": [
-        {"src": "/(.*)", "dest": "app.py"},
         {
-            "src": "/templates/(.*)",
-            "dest": "index.html"
+            "src": "/api/send-otp",
+            "dest": "/api/index.py"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/app.py"
         }
     ],
     "env": {
         "FLASK_ENV": "production"
     }
 }
-
