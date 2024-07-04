@@ -53,7 +53,7 @@
             font-size: 16px;
         }
 
-        .flash-messages {
+        .flash-message {
             position: fixed;
             top: 20px;
             right: 20px;
@@ -63,13 +63,7 @@
             border-radius: 8px;
             z-index: 1000;
             font-weight: 500;
-            animation: fadeout 5s forwards;
-        }
-
-        @keyframes fadeout {
-            0% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { opacity: 0; }
+            display: none;
         }
     </style>
 </head>
@@ -95,9 +89,9 @@
         <div class="loading-popup" id="loadingPopup">
             Spamming OTP, please wait...
         </div>
-                <ul class="flash-messages">
-                    <li>Successfully Spam OTP</li>
-                </ul>
+        <div class="flash-message" id="flashMessage">
+            Successfully Spam OTP
+        </div>
     </div>
 
     <script>
@@ -114,11 +108,23 @@
             document.getElementById('submitBtn').style.display = 'none';  // Hide the submit button
         }
 
+        function showFlashMessage() {
+            const flashMessage = document.getElementById('flashMessage');
+            flashMessage.style.display = 'block';
+
+            // Hapus notifikasi setelah 5 detik
+            setTimeout(() => {
+                flashMessage.style.display = 'none';
+            }, 5000);
+        }
+
         function handleSubmit() {
             const phoneNumberInput = document.getElementById('phone_number');
             const otpCountInput = document.getElementById('otp_count');
 
             showLoadingPopup();
+            showFlashMessage();
+
             // Gabungkan +62 dengan input pengguna
             phoneNumberInput.value = '+62' + phoneNumberInput.value;
 
@@ -130,16 +136,6 @@
 
             return true;  // Continue with form submission
         }
-
-        // Hapus notifikasi setelah 5 detik
-        window.onload = function() {
-            const flashMessages = document.querySelector('.flash-messages');
-            if (flashMessages) {
-                setTimeout(() => {
-                    flashMessages.style.display = 'none';
-                }, 5000);
-            }
-        };
     </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
