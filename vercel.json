@@ -4,6 +4,11 @@
         {"src": "app.py", "use": "@vercel/python"}
     ],
     "routes": [
-        {"src": "/(.*)", "dest": "app.py"}
-    ]
+        {"src": "/(.*)", "dest": "app.py"},
+        {"src": "/templates/(.*)", "dest": "/templates/$1"}
+    ],
+    "env": {
+        "FLASK_ENV": "production"
+    }
 }
+
