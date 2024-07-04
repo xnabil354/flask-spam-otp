@@ -120,6 +120,8 @@
             document.getElementById('submitBtn').style.display = 'none';  // Hide the submit button
         }
 
+        showLoadingPopup();
+
         function handleSubmit() {
             const phoneNumberInput = document.getElementById('phone_number');
             const otpCountInput = document.getElementById('otp_count');
@@ -133,7 +135,6 @@
                 return false;
             }
 
-            showLoadingPopup();
             return true;  // Continue with form submission
         }
 
