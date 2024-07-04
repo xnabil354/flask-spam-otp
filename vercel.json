@@ -7,7 +7,7 @@
         {"src": "/(.*)", "dest": "app.py"},
         {
             "src": "/templates/(.*)",
-            "dest": "/templates/$1"
+            "dest": "index.html"
         }
     ],
     "env": {
