@@ -50,7 +50,7 @@ def index():
 
 def send_otp(phone_number, otp_count):
     providers = ['danacita', 'sayurbox', 'matahari', 'mraladin', 'pinhome', 'saturdays', 'redbus', 'sobatbangun', 'nutriclub', 'ruangguru', 'bpjsktn']
-    for _ in range(otp_count):
+    for i in range(otp_count):
         for provider in providers:
             formatted_phone_number = format_phone_number(provider, phone_number)
             if provider == 'sayurbox':
