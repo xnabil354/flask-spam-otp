@@ -76,10 +76,6 @@ def send_otp(phone_number, otp_count):
                 })
 
                 response_sayurbox_wa = requests.post("https://www.sayurbox.com/graphql/v1", headers=headers_sayurbox, data=data_whatsapp_sayurbox)
-                if response_sayurbox_wa.status_code == 200:
-                    return True
-                else:
-                    return False
                 
             if provider == 'danacita':
                 headers_danacita = {
@@ -106,10 +102,6 @@ def send_otp(phone_number, otp_count):
                 
                 
                 response_danacita = requests.post("https://api.danacita.co.id/v4/users/mobile_register/", headers=headers_danacita, data=data_danacita)
-                if response_danacita.status_code == 200:
-                    return True
-                else:
-                    return False
             
             if provider == 'misteraladin':
                 headers_misterAladin = {
@@ -140,10 +132,6 @@ def send_otp(phone_number, otp_count):
                 })
                 
                 response_mraladin = requests.post("https://www.misteraladin.com/api/members/v2/otp/request", headers=headers_misterAladin, data=data_misterAladin)
-                if response_mraladin.status_code == 200:
-                    return True
-                else: 
-                    return False
 
             if provider == 'pinhome':
                 #pinhome
@@ -177,11 +165,7 @@ def send_otp(phone_number, otp_count):
                 })
                 
                 response_pinhome = requests.post("https://www.pinhome.id/api/pinaccount/request/otp", headers=headers_pinhome, data=data_pinhome)
-                if response_pinhome.status_code == 201:
-                    return True
-                else:
-                    return False
-                
+
             if provider =='saturdays':
                 headers_saturdays = {
                     "Accept": "*/*",
@@ -215,11 +199,7 @@ def send_otp(phone_number, otp_count):
                 })
                 
                 response_saturdays = requests.post("https://beta.api.saturdays.com/api/v1/user/otp/send", headers=headers_saturdays, data=data_saturdays)
-                if response_saturdays.status_code == 200:
-                    return True
-                else:
-                    return False
-        
+                
             if provider == 'kelaspintar':
                 headers_kelaspintar = {
                     "Accept": "application/json, text/plain, */*",
@@ -245,10 +225,7 @@ def send_otp(phone_number, otp_count):
                 })
                 
                 response_kelaspintar = requests.post("https://api.kelaspintar.id/uaa/v1/auth/check/phone_number", headers=headers_kelaspintar, data=data_kelaspintar)
-                if response_kelaspintar.status_code == 200:
-                    return True
-                else:
-                    return False
+                
             
             if provider =='sobatbangun':
                 headers_sobatbang = {
@@ -274,10 +251,7 @@ def send_otp(phone_number, otp_count):
                 })
                 
                 response_sobatbangun = requests.post("https://api.sobatbangun.com/auth/otp/send-otp", headers=headers_sobatbang, data=data_sobatbangun)
-                if response_sobatbangun.status_code == 201:
-                    return True
-                else:
-                    return False
+               
             if provider == 'nutriclub':
                 headers_nutriclub = {
                     "Accept": "application/json, text/javascript, */*; q=0.01",
@@ -303,10 +277,6 @@ def send_otp(phone_number, otp_count):
                 })
                 
                 response_data_nutriclub = requests.post(f"https://www.nutriclub.co.id/membership/otp/?phone={formatted_phone_number}&old_phone={formatted_phone_number}", headers=headers_nutriclub, data=data_nutriclub)
-                if response_data_nutriclub.status_code == 200:
-                    return True
-                else:
-                    return False
             
             if provider == 'bpjsktn':
                 headers_bpjsktn = {
@@ -334,10 +304,6 @@ def send_otp(phone_number, otp_count):
                 })
                 
                 response_bpjsktn = requests.post("https://www.bpjsketenagakerjaan.go.id/bpu/otp", headers=headers_bpjsktn, data=data_bpjsktn)
-                if response_bpjsktn.status_code == 200:
-                    return True
-                else:
-                    return False
                 
             if provider =='sociolla':
                 headers_sociolla = {
@@ -368,10 +334,7 @@ def send_otp(phone_number, otp_count):
                 })
                 
                 response_sociolla = requests.post("https://soco-api.sociolla.com/auth/otp/code", headers=headers_sociolla, data=data_sociolla)
-                if response_sociolla.status_code == 200:
-                    return True
-                else:
-                    return False
+            
 
 if __name__ == '__main__':
     app.run(debug=True)
