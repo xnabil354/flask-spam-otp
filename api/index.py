@@ -39,15 +39,15 @@ def format_phone_number(provider, phone_number):
     else:
         return phone_number
     
-@app.route('/send-otp', methods=['GET', 'POST'])
-async def send_otp_route():
+@app.route('/send-otp', methods=['POST'])
+def send_otp_route():
     phone_number = request.form['phone_number']
     otp_count = int(request.form['otp_count'])
     asyncio.create_task(send_otp(phone_number, otp_count))
     result_message = f'Successfully initiated sending {otp_count} OTP(s) to {phone_number}'
     return jsonify(message=result_message)
 
-async def send_otp(phone_number, otp_count):
+def send_otp(phone_number, otp_count):
     providers = ['danacita', 'sayurbox', 'matahari', 'mraladin', 'pinhome', 'saturdays', 'redbus', 'sobatbangun', 'nutriclub', 'ruangguru', 'bpjsktn']
     for i in range(otp_count):
         for provider in providers:
