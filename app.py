@@ -149,7 +149,7 @@ async def send_otp_request(session, provider, formatted_phone_number):
                 if response_pinhome.status_code == 201:
                     print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Pinhome")
                 else:
-                    print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Pinhome")
+                    print(f"Gagal mmengirim SMS/WA To : {formatted_phone_number} via Pinhome")
         
         if provider == 'kelaspintar':
             headers_kelaspintar = {
