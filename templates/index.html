@@ -53,7 +53,7 @@
             font-size: 16px;
         }
 
-        .flash-message {
+        .flash-messages {
             position: fixed;
             top: 20px;
             right: 20px;
@@ -63,14 +63,20 @@
             border-radius: 8px;
             z-index: 1000;
             font-weight: 500;
-            display: none;
+            animation: fadeout 5s forwards;
+        }
+
+        @keyframes fadeout {
+            0% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Spam OTP SMS</h1>
-        <form id="otpForm" method="POST" onsubmit="handleSubmit(event)">
+        <form id="otpForm" method="POST" onsubmit="return handleSubmit()">
             <div class="form-group">
                 <label for="phone_number">Nomer Target:</label>
                 <div class="input-group">
@@ -89,9 +95,15 @@
         <div class="loading-popup" id="loadingPopup">
             Spamming OTP, please wait...
         </div>
-        <div class="flash-message" id="flashMessage">
-            Successfully Spam OTP
-        </div>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flash-messages">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
     </div>
 
     <script>
@@ -108,48 +120,29 @@
             document.getElementById('submitBtn').style.display = 'none';  // Hide the submit button
         }
 
-        function showFlashMessage() {
-            const flashMessage = document.getElementById('flashMessage');
-            flashMessage.style.display = 'block';
-
-            // Hapus notifikasi setelah 5 detik
-            setTimeout(() => {
-                flashMessage.style.display = 'none';
-            }, 5000);
-        }
-
-        async function handleSubmit(event) {
-            event.preventDefault();
+        function handleSubmit() {
             const phoneNumberInput = document.getElementById('phone_number');
             const otpCountInput = document.getElementById('otp_count');
 
-            showLoadingPopup();
-            showFlashMessage();
-
             // Gabungkan +62 dengan input pengguna
-            const phoneNumber = '+62' + phoneNumberInput.value;
-            const otpCount = otpCountInput.value;
+            phoneNumberInput.value = '+62' + phoneNumberInput.value;
 
-            // Kirim permintaan POST ke endpoint serverless function
-            const response = await fetch('/api/send-otp', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: `phone_number=${phoneNumber}&otp_count=${otpCount}`
-            });
+            // Validasi jumlah spam
+            if (otpCountInput.value < 1) {
+                alert('Jumlah spam harus lebih dari 0.');
+                return false;
+            }
 
-            const result = await response.json();
-
-            console.log(result.message);  // Log the result message from the serverless function
+            showLoadingPopup();
+            return true;  // Continue with form submission
         }
 
-        // Hapus notifikasi setelah 5 detik saat halaman dimuat
+        // Hapus notifikasi setelah 5 detik
         window.onload = function() {
-            const flashMessage = document.getElementById('flashMessage');
-            if (flashMessage) {
+            const flashMessages = document.querySelector('.flash-messages');
+            if (flashMessages) {
                 setTimeout(() => {
-                    flashMessage.style.display = 'none';
+                    flashMessages.style.display = 'none';
                 }, 5000);
             }
         };
