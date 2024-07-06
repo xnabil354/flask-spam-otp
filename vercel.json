@@ -16,8 +16,8 @@
         "FLASK_ENV": "production"
     },
     "functions": {
-        "app.py": {
-            "maxDuration": 10
-        }
+    "app.py": {
+        "maxDuration": 10
     }
+}
 }
